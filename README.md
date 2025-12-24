@@ -32,15 +32,26 @@
 <details>
   <summary>Installation</summary>
 
-- Just run
+- Just run:
 
    ```bash
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/nixarchie/pkgx/main/install)"
    ```
 
-- Or clone this repo and run `./install`
+- Or:
+```bash
+    git clone https://github.com/nixarchie/pkgx.git
+    cd pkgx
+    sudo make install
+```
+ 
 
-- Alternatlly use `make install` to install.
+- Alternatually, on Arch:
+```bash
+git clone https://github.com/nixarchie/pkgx.git
+cd pkgx
+makepkg -si
+```
 
 </details>
 

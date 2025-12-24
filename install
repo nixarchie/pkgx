@@ -1,39 +1,99 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -eu
 
 # ---- config ----
-PREFIX=${PREFIX:-"$HOME/.local"}
+PREFIX=${PREFIX:-/usr/local}
+
 BIN_DIR="$PREFIX/bin"
+LIB_ROOT="$PREFIX/lib/pkgx"
 
 PKGX_BIN=pkgx
+PKGX_ENTRY=pkgx.sh
 COMMANDS_DIR=commands
 LIB_DIR=lib
 
 DEST_PKGX="$BIN_DIR/$PKGX_BIN"
-DEST_COMMANDS="$BIN_DIR/commands"
-DEST_LIB="$BIN_DIR/lib"
+DEST_LIB="$LIB_ROOT"
+
+# ---- Functions ----
+STY_RED='\e[31m'
+STY_GREEN='\e[32m'
+STY_YELLOW='\e[33m'
+STY_BLUE='\e[34m'
+STY_PURPLE='\e[35m'
+STY_CYAN='\e[36m'
+
+STY_BOLD='\e[1m'
+STY_FAINT='\e[2m'
+STY_SLANT='\e[3m'
+STY_UNDERLINE='\e[4m'
+STY_BLINK='\e[5m'
+STY_INVERT='\e[7m'
+STY_RST='\e[00m'
+
+function sudo_init_keepalive(){
+  # Check if sudo is available
+  if ! command -v sudo >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # Skip if already initialized
+  if [[ -n "$SUDO_KEEPALIVE_PID" ]] && kill -0 "$SUDO_KEEPALIVE_PID" 2>/dev/null; then
+    return 0
+  fi
+
+  # Prompt for sudo password once at the beginning
+  echo -e "${STY_CYAN}[$0]: Requesting sudo privileges for installation...${STY_RST}"
+  if ! sudo -v; then
+    echo -e "${STY_RED}[$0]: Failed to obtain sudo privileges. Aborting...${STY_RST}"
+    exit 1
+  fi
+
+  # Start background process to keep sudo session alive
+  # This updates the sudo timestamp every 60 seconds
+  (
+    while true; do
+      sleep 60
+      sudo -v 2>/dev/null || exit 0
+    done
+  ) &
+  SUDO_KEEPALIVE_PID=$!
+
+  echo -e "${STY_GREEN}[$0]: Sudo session initialized and will be kept alive (PID: $SUDO_KEEPALIVE_PID)${STY_RST}"
+}
+
+function sudo_stop_keepalive(){
+  if [[ -n "$SUDO_KEEPALIVE_PID" ]] && kill -0 "$SUDO_KEEPALIVE_PID" 2>/dev/null; then
+    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null
+    wait "$SUDO_KEEPALIVE_PID" 2>/dev/null
+    SUDO_KEEPALIVE_PID=""
+  fi
+}
+
 
 # ---- sanity checks ----
-[ -f "$PKGX_BIN" ] || { echo "error: pkgx not found"; exit 1; }
+[ -f "$PKGX_BIN" ]     || { echo "error: pkgx not found"; exit 1; }
+[ -f "$PKGX_ENTRY" ]   || { echo "error: pkgx.sh not found"; exit 1; }
 [ -d "$COMMANDS_DIR" ] || { echo "error: commands/ not found"; exit 1; }
-[ -d "$LIB_DIR" ] || { echo "error: lib/ not found"; exit 1; }
+[ -d "$LIB_DIR" ]      || { echo "error: lib/ not found"; exit 1; }
 
-echo "→ Installing pkgx to $BIN_DIR"
+echo "→ Installing pkgx system-wide to $PREFIX (requires sudo)"
+sudo_init_keepalive
 
 # ---- dirs ----
-mkdir -p "$BIN_DIR"
+sudo mkdir -p "$BIN_DIR" "$LIB_ROOT"
 
-# ---- install main binary ----
-install -m 755 "$PKGX_BIN" "$DEST_PKGX"
+# ---- install launcher ----
+sudo install -m 755 "$PKGX_BIN" "$DEST_PKGX"
 
-# ---- install support dirs ----
-rm -rf "$DEST_COMMANDS" "$DEST_LIB"
-
-cp -R "$COMMANDS_DIR" "$DEST_COMMANDS"
-cp -R "$LIB_DIR" "$DEST_LIB"
+# ---- install lib tree ----
+sudo rm -rf "$DEST_LIB"
+sudo mkdir -p "$DEST_LIB"
+sudo cp -R "$LIB_DIR" "$COMMANDS_DIR" "$PKGX_ENTRY" "$DEST_LIB"
 
 # ---- fix permissions ----
-find "$DEST_COMMANDS" "$DEST_LIB" -type f -name '*.sh' -exec chmod 755 {} \;
+sudo find "$DEST_LIB" -type f -name '*.sh' -exec chmod 755 {} \;
+sudo_stop_keepalive
 
 # ---- done ----
 if command -v pkgx >/dev/null 2>&1; then
