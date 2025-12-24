@@ -8,9 +8,7 @@ url="https://github.com/nixarchie/pkgx"
 license=('custom')  # no formal license
 depends=('bash'
          'fzf')
-source=("./pkgx"
-        "./commands"
-        "./lib")
+source=("pkgx-src.tar.gz")
 sha256sums=('SKIP')  # since it's local, skip checksums
 
 build() {
