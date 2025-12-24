@@ -29,4 +29,3 @@ else
     printf "  add this to your shell rc:\n"
     printf "  export PATH=\"%s:$PATH\"\n" "$BIN_DIR"
 fi
-
