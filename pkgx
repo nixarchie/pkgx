@@ -1,35 +1,7 @@
-#!/usr/bin/env bash
-set -eu
+#!/bin/sh
 
-# Resolve directory of this script (portable, symlink-safe enough)
-PKGX_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PKGX_LIB="/usr/local/lib/pkgx"
 
-# Export for exec'ed subcommands
-export PKGX_DIR
-export LIB="$PKGX_DIR/lib"
-export COMMANDS="$PKGX_DIR/commands"
+export PKGX_LIB
 
-# Load core libs (for this process only)
-. "$LIB/common.sh"
-. "$LIB/backend.sh"
-
-# Command dispatch
-if [ "$#" -gt 0 ]; then
-    cmd=$1
-    shift
-else
-    cmd=help
-fi
-
-case "$cmd" in
-    add|rm|install|sync|list|menu)
-        exec "$COMMANDS/$cmd.sh" "$@"
-        ;;
-    help|-h|--help)
-        exec "$LIB/help.sh"
-        ;;
-    *)
-        printf "pkgx: unknown command '%s'\n" "$cmd" >&2
-        exit 1
-        ;;
-esac
+exec sh "$PKGX_LIB/pkgx.sh" "$@"

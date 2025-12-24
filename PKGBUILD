@@ -1,34 +1,22 @@
-# Maintainer: Nixie <nixie@example.com>
 pkgname=pkgx
-pkgver=0.1.0
+pkgver=0.0.0
 pkgrel=1
-pkgdesc="Pkgx - a cross-distro package manager frontend"
-arch=('x86_64')
+pkgdesc="Cross-distro package manager frontend"
+arch=('any')
 url="https://github.com/nixarchie/pkgx"
-license=('custom')  # no formal license
-depends=('bash'
-         'fzf')
-source=("pkgx-src.tar.gz")
-sha256sums=('SKIP')  # since it's local, skip checksums
+license=('unknown')
+depends=('bash' 'fzf')
 
-build() {
-    # Nothing to build for shell scripts
-    :
-}
+source=("git+$url")
+sha256sums=('SKIP')
 
 package() {
-    echo "→ Installing pkgx to $pkgdir/usr/local/bin"
+  cd "$srcdir/pkgx"
 
-    # create target dir
-    mkdir -p "$pkgdir/usr/local/bin"
+  # bin
+  install -Dm755 pkgx "$pkgdir/usr/local/bin/pkgx"
 
-    # copy all files
-    cp -R pkgx commands lib "$pkgdir/usr/local/bin/"
-
-    # make main binary executable
-    chmod +x "$pkgdir/usr/local/bin/pkgx"
-
-    # fix permissions of all .sh files
-    find "$pkgdir/usr/local/bin/commands" "$pkgdir/usr/local/bin/lib" -type f -name '*.sh' -exec chmod 755 {} \;
+  # lib
+  install -d "$pkgdir/usr/local/lib/pkgx"
+  cp -r lib commands pkgx.sh "$pkgdir/usr/local/lib/pkgx/"
 }
-

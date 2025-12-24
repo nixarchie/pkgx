@@ -1,10 +1,9 @@
 # ---- config ----
-PREFIX ?= $(HOME)/.local
-BINDIR  = $(PREFIX)/bin
+PREFIX  ?= /usr/local
+BINDIR   = $(PREFIX)/bin
+LIBDIR   = $(PREFIX)/lib/pkgx
 
 PKGX_BIN = pkgx
-COMMANDS = commands
-LIB      = lib
 
 # ---- default ----
 all:
@@ -12,24 +11,24 @@ all:
 
 # ---- install ----
 install:
-	sh ./install
+	mkdir -p $(BINDIR) $(LIBDIR)
+	install -m755 pkgx $(BINDIR)/$(PKGX_BIN)
+	cp -r lib commands pkgx.sh $(LIBDIR)
 
 # ---- uninstall ----
 uninstall:
 	rm -f $(BINDIR)/$(PKGX_BIN)
-	rm -rf $(BINDIR)/$(COMMANDS)
-	rm -rf $(BINDIR)/$(LIB)
+	rm -rf $(LIBDIR)
 
 # ---- dev helpers ----
 check:
-	sh -n pkgx
+	sh -n pkgx pkgx.sh
 	find lib commands -type f -name '*.sh' -exec sh -n {} \;
 
 dev:
-	mkdir -p $(BINDIR)
+	mkdir -p $(BINDIR) $(PREFIX)/lib
 	ln -sf $(PWD)/pkgx $(BINDIR)/pkgx
-	ln -sf $(PWD)/commands $(BINDIR)/commands
-	ln -sf $(PWD)/lib $(BINDIR)/lib
+	ln -sf $(PWD) $(PREFIX)/lib/pkgx
 
 # ---- housekeeping ----
 .PHONY: all install uninstall check dev
