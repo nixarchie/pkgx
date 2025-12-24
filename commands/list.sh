@@ -8,16 +8,17 @@ backend="$(detect_backend)"
 
 case "$backend" in
   pacman)
-    pacman -Qe | bat
+    pacman -Qe
     ;;
   nix)
-    nix profile list | bat 
+    nix profile list
     ;;
   freebsd)
-    pkg query "%n" | bat
+    pkg query "%n"
     ;;
   apt)
-    apt-mark showmanual | bat
+    apt-mark showmanual
     ;;
-esac
+esac | fzf
+
 show_done
