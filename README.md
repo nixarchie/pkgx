@@ -46,7 +46,7 @@
 ```
  
 
-- Alternatually, on Arch:
+- Alternatively, on Arch:
 ```bash
 git clone https://github.com/nixarchie/pkgx.git
 cd pkgx
@@ -98,16 +98,15 @@ makepkg -si
     <h3></h3>
 </div>
 
-pkgx add <pkg...>
-
-pkgx rm <pkg...>
-
-pkgx sync <updates system>
-
-pkgx list <>
+```bash
+pkgx add <pkg...>      # Add/install package(s)
+pkgx rm <pkg...>       # Remove package(s)
+pkgx sync              # Sync package database
+pkgx list <pattern>    # List installed packages or search
+pkgx menu              # Interactive menu
+```
 
 <!--pkgx install <profile>-->
-pkgx menu <fzf tui>
 
 **The user is advised to read the entire README.**
 
@@ -137,7 +136,7 @@ pkgx menu <fzf tui>
 <div align=center>
 
 
-<!--<h2>• contrubiting •</h2>
+<!--<h2>• contributing •</h2>
 If you have any ideas/improvements feel free to open an issue/pr. Otherwise you can contact me on <a href="https://www.reddit.com/user/TGamer_1/">reddit</a>.(I may respond a bit late)-->
 
 Copyright (c) 2025 nixarchie
