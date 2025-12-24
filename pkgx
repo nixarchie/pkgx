@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-PKGX_DIR="$(dirname "$(readlink -f "$0")")"
+PKGX_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 LIB="$PKGX_DIR/lib"
 export PKGX_DIR="$(dirname "$(readlink -f "$0")")"
 export LIB="$PKGX_DIR/lib"

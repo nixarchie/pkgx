@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+# ---- config ----
+BIN_NAME="pkgx"
+PREFIX="${HOME}/.local"
+BIN_DIR="${PREFIX}/bin"
+SRC="./pkgx"   # adjust if pkgx lives somewhere else
+DEST="${BIN_DIR}/${BIN_NAME}"
+
+# ---- checks ----
+if [ ! -f "$SRC" ]; then
+    printf "error: %s not found\n" "$SRC" >&2
+    exit 1
+fi
+
+# ---- install ----
+printf "→ Installing %s to %s\n" "$BIN_NAME" "$DEST"
+
+mkdir -p "$BIN_DIR"
+cp "$SRC" "$DEST"
+chmod +x "$DEST"
+
+# ---- post ----
+if command -v "$BIN_NAME" >/dev/null 2>&1; then
+    printf "✓ %s installed successfully\n" "$BIN_NAME"
+else
+    printf "⚠ %s installed, but %s is not in PATH\n" "$BIN_DIR" "$BIN_DIR"
+    printf "  add this to your shell rc:\n"
+    printf "  export PATH=\"%s:$PATH\"\n" "$BIN_DIR"
+fi
+
