@@ -85,12 +85,16 @@
 <div align="center">
     <h2>• usage •</h2>
     <h3></h3>
-</div>>
+</div>
 
 pkgx add <pkg...>
+
 pkgx rm <pkg...>
+
 pkgx sync <updates system>
+
 pkgx list <>
+
 <!--pkgx install <profile>-->
 pkgx menu <fzf tui>
 
