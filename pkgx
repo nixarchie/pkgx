@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -eu
+
+PKGX_DIR="$(dirname "$(readlink -f "$0")")"
+LIB="$PKGX_DIR/lib"
+export PKGX_DIR="$(dirname "$(readlink -f "$0")")"
+export LIB="$PKGX_DIR/lib"
+
+. "$LIB/common.sh"
+. "$LIB/backend.sh"
+
+# Only shift if there's at least one arg
+if [ "$#" -ge 1 ]; then
+  cmd="$1"
+  shift
+else
+  cmd="help"
+fi
+
+case "$cmd" in
+  add|rm|install|sync|list|menu)
+    exec "$PKGX_DIR/commands/$cmd.sh" "$@"
+    ;;
+  help|-h|--help)
+    exec "$PKGX_DIR/lib/help.sh"
+    ;;
+  *)
+    echo "pkgx: unknown command '$cmd'" >&2
+    exit 1
+    ;;
+esac
