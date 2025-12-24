@@ -53,3 +53,4 @@ esac
 [ -n "$pkgs" ] || exit 0
 
 backend_add $pkgs
+show-done

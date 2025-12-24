@@ -2,30 +2,43 @@
 set -eu
 
 # ---- config ----
-BIN_NAME="pkgx"
-PREFIX="${HOME}/.local"
-BIN_DIR="${PREFIX}/bin"
-SRC="./pkgx"   # adjust if pkgx lives somewhere else
-DEST="${BIN_DIR}/${BIN_NAME}"
+PREFIX=${PREFIX:-"$HOME/.local"}
+BIN_DIR="$PREFIX/bin"
 
-# ---- checks ----
-if [ ! -f "$SRC" ]; then
-    printf "error: %s not found\n" "$SRC" >&2
-    exit 1
-fi
+PKGX_BIN=pkgx
+COMMANDS_DIR=commands
+LIB_DIR=lib
 
-# ---- install ----
-printf "→ Installing %s to %s\n" "$BIN_NAME" "$DEST"
+DEST_PKGX="$BIN_DIR/$PKGX_BIN"
+DEST_COMMANDS="$BIN_DIR/commands"
+DEST_LIB="$BIN_DIR/lib"
 
+# ---- sanity checks ----
+[ -f "$PKGX_BIN" ] || { echo "error: pkgx not found"; exit 1; }
+[ -d "$COMMANDS_DIR" ] || { echo "error: commands/ not found"; exit 1; }
+[ -d "$LIB_DIR" ] || { echo "error: lib/ not found"; exit 1; }
+
+echo "→ Installing pkgx to $BIN_DIR"
+
+# ---- dirs ----
 mkdir -p "$BIN_DIR"
-cp "$SRC" "$DEST"
-chmod +x "$DEST"
 
-# ---- post ----
-if command -v "$BIN_NAME" >/dev/null 2>&1; then
-    printf "✓ %s installed successfully\n" "$BIN_NAME"
+# ---- install main binary ----
+install -m 755 "$PKGX_BIN" "$DEST_PKGX"
+
+# ---- install support dirs ----
+rm -rf "$DEST_COMMANDS" "$DEST_LIB"
+
+cp -R "$COMMANDS_DIR" "$DEST_COMMANDS"
+cp -R "$LIB_DIR" "$DEST_LIB"
+
+# ---- fix permissions ----
+find "$DEST_COMMANDS" "$DEST_LIB" -type f -name '*.sh' -exec chmod 755 {} \;
+
+# ---- done ----
+if command -v pkgx >/dev/null 2>&1; then
+    echo "✓ pkgx installed successfully"
 else
-    printf "⚠ %s installed, but %s is not in PATH\n" "$BIN_DIR" "$BIN_DIR"
-    printf "  add this to your shell rc:\n"
-    printf "  export PATH=\"%s:$PATH\"\n" "$BIN_DIR"
+    echo "⚠ $BIN_DIR is not in PATH"
+    echo "  export PATH=\"$BIN_DIR:\$PATH\""
 fi
