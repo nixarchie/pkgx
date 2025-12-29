@@ -1,5 +1,8 @@
-# makepkg build artifacts
-/src/
-/pkg/
+# ---- makepkg ----
+pkg/
+src/
 *.pkg.tar.*
 *.log
+
+# ---- makepkg git sources ----
+*-src/
