@@ -14,6 +14,8 @@ case "$command" in
     add|install)
         exec sh "$CMD/add.sh" "$@"
         ;;
+    aur|yay|aur-install)
+        exec sh "$CMD/aur-install.sh"
     remove|rm)
         exec sh "$CMD/remove.sh" "$@"
         ;;
