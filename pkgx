@@ -1,7 +1,38 @@
 #!/bin/sh
 
-PKGX_LIB="/usr/local/lib/pkgx"
+export PKGX_LIB="/usr/local/lib/pkgx"
+export LIB="$PKGX_LIB/lib"
+export CMD="$PKGX_LIB/commands"
 
-export PKGX_LIB
+. "$LIB/common.sh"
+. "$LIB/backend.sh"
 
-exec sh "$PKGX_LIB/pkgx.sh" "$@"
+command="$1"
+shift || true
+
+case "$command" in
+    add|install)
+        exec sh "$CMD/add.sh" "$@"
+        ;;
+    remove|rm)
+        exec sh "$CMD/remove.sh" "$@"
+        ;;
+    menu)
+        exec sh "$CMD/menu.sh" "$@"
+        ;;
+    ""|help|-h|--help)
+        exec sh "$LIB/help.sh" "$@"
+        ;;
+    list)
+        exec sh "$CMD/list.sh" "$@"
+        ;;
+    sync)
+        exec sh "$CMD/sync.sh" "$@"
+        ;;
+    add-aur)
+        exec sh "$CMD/aur-install.sh" "$@"
+        ;;
+    *)
+        die "unknown command: $command"
+        ;;
+esac
