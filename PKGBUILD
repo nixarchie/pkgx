@@ -7,11 +7,11 @@ url="https://github.com/nixarchie/pkgx"
 license=('unknown')
 depends=('bash' 'fzf')
 
-source=("git+$url")
+source=("pkgx-src::git+$url")
 sha256sums=('SKIP')
 
 package() {
-  cd "$srcdir/pkgx"
+  cd "$srcdir/pkgx-src"
 
   # bin
   install -Dm755 pkgx "$pkgdir/usr/local/bin/pkgx"
