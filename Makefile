@@ -7,7 +7,8 @@ PKGX_BIN = pkgx
 
 # ---- default ----
 all:
-	@echo "pkgx: nothing to build"
+	@printf "\n\033[1;35m─── pkgx: nothing to build ───\033[0m"
+	@printf "\n\033[1;35m─── It's just shell scripts, really. ───\033[0m\n"
 
 # ---- install ----
 install:
@@ -30,5 +31,11 @@ dev:
 	ln -sf $(PWD)/pkgx $(BINDIR)/pkgx
 	ln -sf $(PWD) $(PREFIX)/lib/pkgx
 
+override:
+	@gum spin --spinner "globe" --title "Okey! Overriding with makepkg..." -- bash -c 'read -n 1 -s' || exit 1
+	@makepkg -Ccfsi
+	@echo
+	@gum spin --spinner "globe" --title "Done! Press any key to close..." -- bash -c 'read -n 1 -s'
+
 # ---- housekeeping ----
-.PHONY: all install uninstall check dev
+.PHONY: all install uninstall check dev override

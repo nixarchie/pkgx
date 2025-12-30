@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# NOTE:
+# This AUR fzf menu is intentionally undocumented.
+# It is a power-user feature meant to be discovered
+# by reading the source.
+
+
 fzf_args=(
   --multi
   --preview 'yay -Siia {1}'
