@@ -16,7 +16,7 @@ case "$command" in
         ;;
     aur|yay|aur-install)
         have pacman || ( printf "\033[1;32m───>\033[0m pkgx: AUR is only available on Arch-based systems\n" && exit 1 )
-        have paru || ( printf "\033[1;32m───>\033[0m pkgx: yay is required for AUR installs\n" && exit 1 )
+        have yay || ( printf "\033[1;32m───>\033[0m pkgx: yay is required for AUR installs\n" && exit 1 )
         exec sh "$CMD/aur-install.sh"
         ;;
     remove|rm)

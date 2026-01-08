@@ -32,6 +32,7 @@ dev:
 	ln -sf $(PWD) $(PREFIX)/lib/pkgx
 
 override:
+	@ command -v pacman || printf "non Arch system"
 	@gum spin --spinner "globe" --title "Okey! Overriding with makepkg..." -- bash -c 'read -n 1 -s' || exit 1
 	@makepkg -Ccfsi
 	@echo

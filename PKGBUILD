@@ -1,11 +1,11 @@
 pkgname=pkgx
-pkgver=0.0.0
+pkgver=0.1.1
 pkgrel=1
 pkgdesc="Cross-distro package manager frontend"
 arch=('any')
-url="https://github.com/nixarchie/pkgx"
-license=('unknown')
+license=('none')
 depends=('bash' 'fzf')
+conflicts=('pkgx')
 
 source=("pkgx-src::git+$url")
 sha256sums=('SKIP')

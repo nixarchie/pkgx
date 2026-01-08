@@ -66,6 +66,11 @@ backend_sync() {
   case "$backend" in
     pacman)
       sudo pacman -Syu
+      if have yay; then
+        yay -Syu
+      elif have paru; then
+        paru -Sua
+      fi
       ;;
     nix)
       nix-channel --update
