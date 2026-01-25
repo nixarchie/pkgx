@@ -1,43 +1,40 @@
-#!/bin/sh
+#!/usr/bin/env sh
+set -eus
 
-export PKGX_LIB="/usr/local/lib/pkgx"
+export PATH="$PKGX_LIB:$HOME/.local/bin:$PATH"
 export LIB="$PKGX_LIB/lib"
 export CMD="$PKGX_LIB/commands"
 
 . "$LIB/common.sh"
 . "$LIB/backend.sh"
+. "$LIB/config.sh"
 
-command="$1"
-shift || true
+#pkgx_print_config
+#pkgx_debug_config
 
-case "$command" in
-    add|install)
-        exec sh "$CMD/add.sh" "$@"
-        ;;
-    aur|yay|aur-install)
-        have pacman || ( printf "\033[1;32m───\033[0m pkgx: AUR is only available on Arch-based systems\n" && exit 1 )
-        have yay || ( printf "\033[1;32m───\033[0m pkgx: yay is required for AUR installs\n" && exit 1 )
-        exec sh "$CMD/aur-install.sh"
-        ;;
-    remove|rm)
-        exec sh "$CMD/remove.sh" "$@"
-        ;;
-    menu)
-        exec sh "$CMD/menu.sh" "$@"
-        ;;
-    ""|help|-h|--help)
-        exec sh "$LIB/help.sh" "$@"
-        ;;
-    list)
-        exec sh "$CMD/list.sh" "$@"
-        ;;
-    sync)
-        exec sh "$CMD/sync.sh" "$@"
-        ;;
-    add-aur)
-        exec sh "$CMD/aur-install.sh" "$@"
-        ;;
-    *)
-        die "unknown command: $command"
-        ;;
+case "$PKGX_INTERFACE" in
+  pacman)  . "$LIB/interface/pacman.sh" ;;
+  apt)     . "$LIB/interface/apt.sh" ;;
+  nix)     . "$LIB/interface/nix.sh" ;;
+  generic) : ;;
+esac
+
+# THIS is the important part
+if type pkgx_cmd >/dev/null 2>&1; then
+  pkgx_cmd "$@"
+  exit 0
+fi
+
+# fallback generic dispatcher
+case "${1:-}" in
+  add|install)   shift; backend_add "$@" ;;
+  rm)    shift; backend_rm "$@" ;;
+  sync)  backend_sync ;;
+  list|show)  backend_list ;;
+  -h|--help)
+    exec sh "$LIB/help.sh"
+    ;;
+  *)
+    die "unknown command: ${1:-}"
+    ;;
 esac

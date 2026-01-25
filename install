@@ -91,6 +91,22 @@ sudo rm -rf "$DEST_LIB"
 sudo mkdir -p "$DEST_LIB"
 sudo cp -R "$LIB_DIR" "$COMMANDS_DIR" "$PKGX_ENTRY" "$DEST_LIB"
 
+# create system-wide config dir if it doesn't exist
+sudo mkdir -p /etc/pkgx
+
+# if no system config exists, copy the default
+if [ ! -f /etc/pkgx/config.yaml ]; then
+    sudo cp "$LIB/config.yaml" /etc/pkgx/config.yaml
+fi
+
+# create user config dir if needed
+mkdir -p "$HOME/.config/pkgx"
+
+# copy system config to user if user config missing
+if [ ! -f "$HOME/.config/pkgx/config.yaml" ]; then
+    cp /etc/pkgx/config.yaml "$HOME/.config/pkgx/config.yaml"
+fi
+
 # ---- fix permissions ----
 sudo find "$DEST_LIB" -type f -name '*.sh' -exec chmod 755 {} \;
 sudo_stop_keepalive

@@ -11,4 +11,6 @@ case "$backend" in
   freebsd) pkg query "%n" ;;
   apt) apt-mark showmanual ;;
   nix) nix profile list ;;
-esac | fzf $FZF_ARGS
+esac | fzf "${fzf_args[@]}"
+
+show_done

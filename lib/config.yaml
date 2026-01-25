@@ -1,0 +1,15 @@
+# ~/.config/pkgx/config.yaml
+
+# default package manager
+pm:
+  backend:
+  interface: generic
+dev: false
+# ask for confirmation before executing
+direct: false
+# show interactive gum UI
+gum: true
+paths:
+  config_dir: ${HOME}/.config/pkgx
+  log_dir: ${HOME}/.local/state/pkgx/logs # Does nothing at the moment
+syntax: yaml       # pkgx config syntax, does nothing at the moment

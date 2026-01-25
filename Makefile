@@ -1,25 +1,58 @@
 # ---- config ----
-PREFIX   = /usr/local
-BINDIR   = $(PREFIX)/bin
-LIBDIR   = $(PREFIX)/lib/pkgx
+PREFIX       = /usr/local
+BINDIR       = $(PREFIX)/bin
+LIBDIR       = $(PREFIX)/lib/pkgx
 
-PKGX_BIN = pkgx
+# ---- user config ----
+USER_PREFIX  = $(HOME)/.local
+USER_BINDIR  = $(USER_PREFIX)/bin
+USER_LIBDIR  = $(USER_PREFIX)/lib/pkgx
+USER_CFGDIR  = $(HOME)/.config/pkgx
+
+PKGX_BIN     = pkgx
 
 # ---- default ----
 all:
 	@printf "\n\033[1;35m─── pkgx: nothing to build ───\033[0m"
 	@printf "\n\033[1;35m─── It's just shell scripts, really. ───\033[0m\n"
 
-# ---- install ----
+# ---- install (system-wide) ----
 install:
-	mkdir -p $(BINDIR) $(LIBDIR)
+	mkdir -p $(BINDIR) $(LIBDIR) /etc/pkgx
 	install -m755 pkgx $(BINDIR)/$(PKGX_BIN)
 	cp -r lib commands pkgx.sh $(LIBDIR)
+	# copy default config if missing
+	[ -f /etc/pkgx/config.yaml ] || cp $(LIBDIR)/config.yaml /etc/pkgx/config.yaml
+	# copy to user config if missing
+	mkdir -p $(USER_CFGDIR)
+	[ -f $(USER_CFGDIR)/config.yaml ] || cp /etc/pkgx/config.yaml $(USER_CFGDIR)/config.yaml
+	@printf "\033[1;32m─── pkgx: system-wide install done ───\033[0m\n"
 
-# ---- uninstall ----
+# ---- uninstall (system-wide) ----
 uninstall:
 	rm -f $(BINDIR)/$(PKGX_BIN)
 	rm -rf $(LIBDIR)
+	rm -f /etc/pkgx/config.yaml
+	@printf "\033[1;32m─── pkgx: system-wide uninstall done ───\033[0m\n"
+
+remove: uninstall
+
+# ---- user install (symlink, no root) ----
+install-user:
+	@printf "\033[1;32m─── pkgx: installing for user ───\033[0m\n"
+	mkdir -p $(USER_BINDIR) $(USER_PREFIX)/lib $(USER_CFGDIR)
+	ln -sf $(PWD)/pkgx $(USER_BINDIR)/pkgx
+	ln -sf $(PWD) $(USER_PREFIX)/lib/pkgx
+	# copy config if missing
+	[ -f $(USER_CFGDIR)/config.yaml ] || cp $(PWD)/lib/config.yaml $(USER_CFGDIR)/config.yaml
+	@printf "\033[1;32m─── pkgx: user install done, linked to ~/.local ───\033[0m\n"
+
+# ---- user uninstall ----
+uninstall-user:
+	rm -f $(USER_BINDIR)/pkgx
+	rm -rf $(USER_PREFIX)/lib/pkgx
+	rm -f $(USER_CFGDIR)/config.yaml
+	@printf "\033[1;32m─── pkgx: user uninstall done ───\033[0m\n"
 
 # ---- dev helpers ----
 check:
@@ -32,11 +65,11 @@ dev:
 	ln -sf $(PWD) $(PREFIX)/lib/pkgx
 
 override:
-	@ command -v pacman || printf "non Arch system"
+	@ command -v pacman || printf "non Arch system" && exit 1
 	@gum spin --spinner "globe" --title "Okey! Overriding with makepkg..." -- bash -c 'read -n 1 -s' || exit 1
 	@makepkg -Ccfsi
 	@echo
 	@gum spin --spinner "globe" --title "Done! Press any key to close..." -- bash -c 'read -n 1 -s'
 
 # ---- housekeeping ----
-.PHONY: all install uninstall check dev override
+.PHONY: all install uninstall install-user uninstall-user check dev override remove
