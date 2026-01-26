@@ -1,3 +1,7 @@
+# ---- Shell ----
+SHELL := /bin/sh
+.ONESHELL:
+
 # ---- config ----
 PREFIX       = /usr/local
 BINDIR       = $(PREFIX)/bin
@@ -65,11 +69,24 @@ dev:
 	ln -sf $(PWD) $(PREFIX)/lib/pkgx
 
 override:
-	@ command -v pacman || printf "non Arch system" && exit 1
-	@gum spin --spinner "globe" --title "Okey! Overriding with makepkg..." -- bash -c 'read -n 1 -s' || exit 1
+	@if ! command -v pacman >/dev/null 2>&1; then \
+		printf "pkgx: override is Arch-only\n" >&2; \
+		exit 1; \
+	fi
+	@if ! command -v makepkg >/dev/null 2>&1; then \
+		printf "pkgx: makepkg not found\n" >&2; \
+		exit 1; \
+	fi
+	@if ! command -v gum >/dev/null 2>&1; then \
+		printf "pkgx: gum not found\n" >&2; \
+		exit 1; \
+	fi
+	@gum spin --spinner "globe" --title "Okay! Overriding with makepkg..." -- \
+		bash -c 'read -n 1 -s'
 	@makepkg -Ccfsi
 	@echo
-	@gum spin --spinner "globe" --title "Done! Press any key to close..." -- bash -c 'read -n 1 -s'
+	@gum spin --spinner "globe" --title "Done! Press any key to close..." -- \
+		bash -c 'read -n 1 -s'
 
 # ---- housekeeping ----
 .PHONY: all install uninstall install-user uninstall-user check dev override remove

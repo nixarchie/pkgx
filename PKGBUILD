@@ -5,8 +5,8 @@ pkgdesc="Cross-distro package manager frontend"
 arch=('any')
 url="https://github.com/nixarchie/pkgx"
 license=('none')
-depends=('bash' 'fzf' 'gum' 'yq')
-conflicts=('pkgx')
+depends=('bash' 'fzf' 'gum' 'go-yq')
+conflicts=('pkgx' 'yq')
 
 source=("pkgx-src::git+$url")
 sha256sums=('SKIP')

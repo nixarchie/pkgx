@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
-set -eus
+set -eu
 
-export PATH="$PKGX_LIB:$HOME/.local/bin:$PATH"
+export PKGX_LIB="$HOME/src/pkgx"
 export LIB="$PKGX_LIB/lib"
 export CMD="$PKGX_LIB/commands"
 
@@ -31,6 +31,7 @@ case "${1:-}" in
   rm)    shift; backend_rm "$@" ;;
   sync)  backend_sync ;;
   list|show)  backend_list ;;
+  menu)  exec sh "$CMD/menu.sh" ;; 
   -h|--help)
     exec sh "$LIB/help.sh"
     ;;
