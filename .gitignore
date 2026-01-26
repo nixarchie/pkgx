@@ -6,3 +6,4 @@ src/
 
 # ---- makepkg git sources ----
 *-src/
+.vscode/
