@@ -1,8 +1,7 @@
 <div align="center">
-    <h1>【 Dots — Multi-Distro Bootstrap 】</h1>
+    <h1>【 Pkgx — Multi-distro pm fruntend 】</h1>
     <h3></h3>
 </div>
-
 
 <div align="center">
 
@@ -11,6 +10,11 @@
 ![](https://img.shields.io/github/repo-size/nixarchie/pkgx?color=86dbce&label=SIZE&logo=protondrive&style=for-the-badge&logoColor=D9E0EE&labelColor=1E202B)
 
 </div>
+
+> 🚨 **CRITICAL WARNING: This project is still under heavy development!** 🚨
+>
+> This README is not up to date at the moment and is extermly outdated with the current
+> development plan
 
 <!--<div align="center">
     <h2>• overview •</h2>
@@ -34,19 +38,20 @@
 
 - Just run:
 
-   ```bash
+  ```bash
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/nixarchie/pkgx/main/install)"
-   ```
+  ```
 
 - Or:
+
 ```bash
     git clone https://github.com/nixarchie/pkgx.git
     cd pkgx
     sudo make install
 ```
- 
 
 - Alternatively, on Arch:
+
 ```bash
 git clone https://github.com/nixarchie/pkgx.git
 cd pkgx
@@ -59,7 +64,7 @@ makepkg -si
 
 <details>
   <summary>Repo overview</summary>
-  
+
     Dots/
     ├── install.sh                 Main entry point, sources modular scripts
     ├── config                       Contains files pointing to $HOME/.config
@@ -108,8 +113,6 @@ pkgx menu              # Interactive menu
 
 <!--pkgx install <profile>-->
 
-**The user is advised to read the entire README.**
-
 <div align="center">
     <h2>• notes •</h2>
     <h3></h3>
@@ -134,7 +137,6 @@ pkgx menu              # Interactive menu
 </div>
 -->
 <div align=center>
-
 
 <!--<h2>• contributing •</h2>
 If you have any ideas/improvements feel free to open an issue/pr. Otherwise you can contact me on <a href="https://www.reddit.com/user/TGamer_1/">reddit</a>.(I may respond a bit late)-->

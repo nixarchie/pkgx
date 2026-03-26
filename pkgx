@@ -7,16 +7,13 @@ export CMD="$PKGX_LIB/commands"
 
 . "$LIB/common.sh"
 . "$LIB/backend.sh"
-. "$LIB/config.sh"
 
-#pkgx_print_config
-#pkgx_debug_config
 
 case "$PKGX_INTERFACE" in
-  pacman)  . "$LIB/interface/pacman.sh" ;;
-  apt)     . "$LIB/interface/apt.sh" ;;
-  nix)     . "$LIB/interface/nix.sh" ;;
-  generic) : ;;
+pacman) . "$LIB/interface/pacman.sh" ;;
+apt) . "$LIB/interface/apt.sh" ;;
+nix) . "$LIB/interface/nix.sh" ;;
+generic) : ;;
 esac
 
 # THIS is the important part
@@ -27,15 +24,21 @@ fi
 
 # fallback generic dispatcher
 case "${1:-}" in
-  add|install)   shift; backend_add "$@" ;;
-  rm)    shift; backend_rm "$@" ;;
-  sync)  backend_sync ;;
-  list|show)  backend_list ;;
-  menu)  exec sh "$CMD/menu.sh" ;; 
-  -h|--help)
-    exec sh "$LIB/help.sh"
-    ;;
-  *)
-    die "unknown command: ${1:-}"
-    ;;
+add | install)
+  shift
+  backend_add "$@"
+  ;;
+rm)
+  shift
+  backend_rm "$@"
+  ;;
+sync) backend_sync ;;
+list | show) backend_list ;;
+menu) exec sh "$CMD/menu.sh" ;;
+-h | --help)
+  exec sh "$LIB/help.sh"
+  ;;
+*)
+  die "unknown command: ${1:-}"
+  ;;
 esac
