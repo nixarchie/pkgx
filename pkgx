@@ -1,44 +1,26 @@
-#!/usr/bin/env sh
-set -eu
+#!/usr/bin/env bash
 
-export PKGX_LIB="$(dirname "$(realpath "$0")")"
-export LIB="$PKGX_LIB/lib"
-export CMD="$PKGX_LIB/commands"
+# load libs
+source "$(dirname "$0")/lib/config.sh"
+source "$(dirname "$0")/lib/flags.sh"
+source "$(dirname "$0")/lib/util.sh"
+source "$(dirname "$0")/lib/backend.sh"
+source "$(dirname "$0")/lib/map.sh"
 
-. "$LIB/common.sh"
-. "$LIB/backend.sh"
+# load commands
+for cmd in "$(dirname "$0")"/cmds/*.sh; do
+  source "$cmd"
+done
 
+# resolve command
+CMD="$1"
+shift
 
-case "$PKGX_INTERFACE" in
-pacman) . "$LIB/interface/pacman.sh" ;;
-apt) . "$LIB/interface/apt.sh" ;;
-nix) . "$LIB/interface/nix.sh" ;;
-generic) : ;;
-esac
+FUNC="${CMD_MAP[$CMD]}"
 
-# THIS is the important part
-if type pkgx_cmd >/dev/null 2>&1; then
-  pkgx_cmd "$@"
-  exit 0
+if ! declare -f "$FUNC" >/dev/null; then
+  echo "Unknown command: $CMD"
+  exit 1
 fi
 
-# fallback generic dispatcher
-case "${1:-}" in
-add | install)
-  shift
-  backend_add "$@"
-  ;;
-rm)
-  shift
-  backend_rm "$@"
-  ;;
-sync) backend_sync ;;
-list | show) backend_list ;;
-menu) exec sh "$CMD/menu.sh" ;;
--h | --help)
-  exec sh "$LIB/help.sh"
-  ;;
-*)
-  die "unknown command: ${1:-}"
-  ;;
-esac
+"$FUNC" "$@"
