@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-export PKGX_LIB="$HOME/src/pkgx"
+export PKGX_LIB="$(dirname "$(realpath "$0")")"
 export LIB="$PKGX_LIB/lib"
 export CMD="$PKGX_LIB/commands"
 
