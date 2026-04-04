@@ -72,4 +72,6 @@ enable_debug() {
       ;;
   esac
 }
-[ "$PKGX_LOG_LEVEL" -gt 3 ] && PKGX_LOG_LEVEL=3
+if [ "$PKGX_LOG_LEVEL" -gt 3 ]; then
+  PKGX_LOG_LEVEL=3
+fi
