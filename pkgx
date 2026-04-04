@@ -1,6 +1,28 @@
 #!/usr/bin/env bash
 
-export PKGX_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+# Try to auto-detect PKGX_ROOT based on where pkgx binary lives
+if [ -n "$PKGX_ROOT" ]; then
+    # user can override PKGX_ROOT explicitly
+    :
+elif [ -d "$HOME/.local/lib/pkgx" ]; then
+    PKGX_ROOT="$HOME/.local/lib/pkgx"
+else
+    # fallback: resolve the binary via PATH
+    PKGX_BIN_PATH="$(command -v pkgx 2>/dev/null || true)"
+    if [ -n "$PKGX_BIN_PATH" ]; then
+        # assuming standard layout: bin/pkgx → ../lib/pkgx
+        PKGX_ROOT="$(dirname "$(dirname "$PKGX_BIN_PATH")")/lib/pkgx"
+    else
+        # ultimate fallback
+        PKGX_ROOT="/usr/local/lib/pkgx"
+    fi
+fi
+
+# sanity check
+if [ ! -d "$PKGX_ROOT" ]; then
+    echo "Error: pkgx root not found!"
+    exit 1
+fi
 
 # load libs
 source "$PKGX_ROOT/lib/config.sh"
