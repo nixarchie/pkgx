@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PREFIX="${HOME}/.local"
+BIN_DIR="${PREFIX}/bin"
+LIB_DIR="${PREFIX}/lib/pkgx"
+PKGX_NAME="pkgx"
+
+echo "[*] Installing pkgx..."
+
+# Create necessary directories
+mkdir -p "$BIN_DIR"
+mkdir -p "$LIB_DIR"
+
+# Copy all files to lib dir
+cp -r ./* "$LIB_DIR/"
+
+# Make main executable executable
+chmod +x "$LIB_DIR/$PKGX_NAME"
+
+# Create symlink in bin
+ln -sf "$LIB_DIR/$PKGX_NAME" "$BIN_DIR/$PKGX_NAME"
+
+echo "[+] Installed $PKGX_NAME to $LIB_DIR and linked to $BIN_DIR"
+
+# Check PATH
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+  echo "[!] Warning: $BIN_DIR is not in your PATH"
+  echo "    Add this to your shell config (~/.bashrc, ~/.zshrc, etc):"
+  echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
+else
+  echo "[+] $BIN_DIR is already in PATH"
+fi
+
+echo "[✓] Done. Run '$PKGX_NAME --help' to verify installation."

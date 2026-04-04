@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PKGX_ROOT="$(cd "$(dirname "$0")" && pwd)"
+export PKGX_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 
 # load libs
 source "$PKGX_ROOT/lib/config.sh"
