@@ -14,3 +14,8 @@ detect_backend() {
 }
 
 PKGX_BACKEND="${PKGX_BACKEND:-$(detect_backend)}"
+
+# load backend
+source "$PKGX_ROOT/lib/backend/$PKGX_BACKEND.sh"
+
+debug "loaded backend: $PKGX_BACKEND"

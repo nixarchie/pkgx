@@ -19,12 +19,22 @@ done
 
 # resolve command
 CMD="$1"
+
+if [ -z "$CMD" ] || [ -z "${CMD_MAP[$CMD]}" ]; then
+  error "Unknown or missing command: ${CMD:-<none>}"
+  exit 1
+fi
+
 shift
+
+# debug AFTER shift (important)
+debug "command: $CMD"
+debug "args: $@"
 
 FUNC="${CMD_MAP[$CMD]}"
 
 if ! declare -f "$FUNC" >/dev/null; then
-  echo "Unknown command: $CMD"
+  error "Unknown command: $CMD"
   exit 1
 fi
 
