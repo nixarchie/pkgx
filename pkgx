@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 
+export PKGX_ROOT="$(cd "$(dirname "$0")" && pwd)"
+
 # load libs
-source "$(dirname "$0")/lib/config.sh"
-source "$(dirname "$0")/lib/flags.sh"
-source "$(dirname "$0")/lib/util.sh"
-source "$(dirname "$0")/lib/backend.sh"
-source "$(dirname "$0")/lib/map.sh"
+source "$PKGX_ROOT/lib/config.sh"
+source "$PKGX_ROOT/lib/flags.sh"
+source "$PKGX_ROOT/lib/util.sh"
+source "$PKGX_ROOT/lib/backend.sh"
+source "$PKGX_ROOT/lib/map.sh"
+
+# enable logging / debug
+enable_debug
 
 # load commands
-for cmd in "$(dirname "$0")"/cmds/*.sh; do
+for cmd in "$PKGX_ROOT"/commands/*.sh; do
   source "$cmd"
 done
 
