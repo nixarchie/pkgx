@@ -1,0 +1,3 @@
+install() {
+  backend_install "$@"
+}
