@@ -1,120 +1,35 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
 
-# ---- config ----
-PREFIX=${PREFIX:-/usr/local}
+PREFIX="${HOME}/.local"
+BIN_DIR="${PREFIX}/bin"
+LIB_DIR="${PREFIX}/lib/pkgx"
+PKGX_NAME="pkgx"
 
-BIN_DIR="$PREFIX/bin"
-LIB_ROOT="$PREFIX/lib/pkgx"
+echo "[*] Installing pkgx..."
 
-PKGX_BIN=pkgx
-PKGX_ENTRY=pkgx.sh
-COMMANDS_DIR=commands
-LIB_DIR=lib
+# Create necessary directories
+mkdir -p "$BIN_DIR"
+mkdir -p "$LIB_DIR"
 
-DEST_PKGX="$BIN_DIR/$PKGX_BIN"
-DEST_LIB="$LIB_ROOT"
+# Copy all files to lib dir
+cp -r ./* "$LIB_DIR/"
 
-# ---- Functions ----
-STY_RED='\e[31m'
-STY_GREEN='\e[32m'
-STY_YELLOW='\e[33m'
-STY_BLUE='\e[34m'
-STY_PURPLE='\e[35m'
-STY_CYAN='\e[36m'
+# Make main executable executable
+chmod +x "$LIB_DIR/$PKGX_NAME"
 
-STY_BOLD='\e[1m'
-STY_FAINT='\e[2m'
-STY_SLANT='\e[3m'
-STY_UNDERLINE='\e[4m'
-STY_BLINK='\e[5m'
-STY_INVERT='\e[7m'
-STY_RST='\e[00m'
+# Create symlink in bin
+ln -sf "$LIB_DIR/$PKGX_NAME" "$BIN_DIR/$PKGX_NAME"
 
-function sudo_init_keepalive(){
-  # Check if sudo is available
-  if ! command -v sudo >/dev/null 2>&1; then
-    return 0
-  fi
+echo "[+] Installed $PKGX_NAME to $LIB_DIR and linked to $BIN_DIR"
 
-  # Skip if already initialized
-  if [[ -n "$SUDO_KEEPALIVE_PID" ]] && kill -0 "$SUDO_KEEPALIVE_PID" 2>/dev/null; then
-    return 0
-  fi
-
-  # Prompt for sudo password once at the beginning
-  echo -e "${STY_CYAN}[$0]: Requesting sudo privileges for installation...${STY_RST}"
-  if ! sudo -v; then
-    echo -e "${STY_RED}[$0]: Failed to obtain sudo privileges. Aborting...${STY_RST}"
-    exit 1
-  fi
-
-  # Start background process to keep sudo session alive
-  # This updates the sudo timestamp every 60 seconds
-  (
-    while true; do
-      sleep 60
-      sudo -v 2>/dev/null || exit 0
-    done
-  ) &
-  SUDO_KEEPALIVE_PID=$!
-
-  echo -e "${STY_GREEN}[$0]: Sudo session initialized and will be kept alive (PID: $SUDO_KEEPALIVE_PID)${STY_RST}"
-}
-
-function sudo_stop_keepalive(){
-  if [[ -n "$SUDO_KEEPALIVE_PID" ]] && kill -0 "$SUDO_KEEPALIVE_PID" 2>/dev/null; then
-    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null
-    wait "$SUDO_KEEPALIVE_PID" 2>/dev/null
-    SUDO_KEEPALIVE_PID=""
-  fi
-}
-
-
-# ---- sanity checks ----
-[ -f "$PKGX_BIN" ]     || { echo "error: pkgx not found"; exit 1; }
-[ -f "$PKGX_ENTRY" ]   || { echo "error: pkgx.sh not found"; exit 1; }
-[ -d "$COMMANDS_DIR" ] || { echo "error: commands/ not found"; exit 1; }
-[ -d "$LIB_DIR" ]      || { echo "error: lib/ not found"; exit 1; }
-
-echo "→ Installing pkgx system-wide to $PREFIX (requires sudo)"
-sudo_init_keepalive
-
-# ---- dirs ----
-sudo mkdir -p "$BIN_DIR" "$LIB_ROOT"
-
-# ---- install launcher ----
-sudo install -m 755 "$PKGX_BIN" "$DEST_PKGX"
-
-# ---- install lib tree ----
-sudo rm -rf "$DEST_LIB"
-sudo mkdir -p "$DEST_LIB"
-sudo cp -R "$LIB_DIR" "$COMMANDS_DIR" "$PKGX_ENTRY" "$DEST_LIB"
-
-# create system-wide config dir if it doesn't exist
-sudo mkdir -p /etc/pkgx
-
-# if no system config exists, copy the default
-if [ ! -f /etc/pkgx/config.yaml ]; then
-    sudo cp "$LIB/config.yaml" /etc/pkgx/config.yaml
-fi
-
-# create user config dir if needed
-mkdir -p "$HOME/.config/pkgx"
-
-# copy system config to user if user config missing
-if [ ! -f "$HOME/.config/pkgx/config.yaml" ]; then
-    cp /etc/pkgx/config.yaml "$HOME/.config/pkgx/config.yaml"
-fi
-
-# ---- fix permissions ----
-sudo find "$DEST_LIB" -type f -name '*.sh' -exec chmod 755 {} \;
-sudo_stop_keepalive
-
-# ---- done ----
-if command -v pkgx >/dev/null 2>&1; then
-    echo "✓ pkgx installed successfully"
+# Check PATH
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+  echo "[!] Warning: $BIN_DIR is not in your PATH"
+  echo "    Add this to your shell config (~/.bashrc, ~/.zshrc, etc):"
+  echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
 else
-    echo "⚠ $BIN_DIR is not in PATH"
-    echo "  export PATH=\"$BIN_DIR:\$PATH\""
+  echo "[+] $BIN_DIR is already in PATH"
 fi
+
+echo "[✓] Done. Run '$PKGX_NAME --help' to verify installation."

@@ -1,44 +1,55 @@
-#!/usr/bin/env sh
-set -eu
+#!/usr/bin/env bash
 
-export PKGX_LIB="$(dirname "$(realpath "$0")")"
-export LIB="$PKGX_LIB/lib"
-export CMD="$PKGX_LIB/commands"
-
-. "$LIB/common.sh"
-. "$LIB/backend.sh"
-
-
-case "$PKGX_INTERFACE" in
-pacman) . "$LIB/interface/pacman.sh" ;;
-apt) . "$LIB/interface/apt.sh" ;;
-nix) . "$LIB/interface/nix.sh" ;;
-generic) : ;;
-esac
-
-# THIS is the important part
-if type pkgx_cmd >/dev/null 2>&1; then
-  pkgx_cmd "$@"
-  exit 0
+# Detect PKGX_ROOT (works for system or user install)
+if [ -d "$HOME/.local/lib/pkgx" ]; then
+    PKGX_ROOT="$HOME/.local/lib/pkgx"
+elif [ -d "/usr/local/lib/pkgx" ]; then
+    PKGX_ROOT="/usr/local/lib/pkgx"
+else
+    echo "Error: pkgx root not found!"
+    exit 1
 fi
 
-# fallback generic dispatcher
-case "${1:-}" in
-add | install)
-  shift
-  backend_add "$@"
-  ;;
-rm)
-  shift
-  backend_rm "$@"
-  ;;
-sync) backend_sync ;;
-list | show) backend_list ;;
-menu) exec sh "$CMD/menu.sh" ;;
--h | --help)
-  exec sh "$LIB/help.sh"
-  ;;
-*)
-  die "unknown command: ${1:-}"
-  ;;
-esac
+# sanity check
+if [ ! -d "$PKGX_ROOT" ]; then
+    echo "Error: pkgx root not found!"
+    exit 1
+fi
+
+# load libs
+source "$PKGX_ROOT/lib/config.sh"
+source "$PKGX_ROOT/lib/flags.sh"
+source "$PKGX_ROOT/lib/util.sh"
+source "$PKGX_ROOT/lib/backend.sh"
+source "$PKGX_ROOT/lib/map.sh"
+
+# enable logging / debug
+enable_debug
+
+# load commands
+for cmd in "$PKGX_ROOT"/commands/*.sh; do
+  source "$cmd"
+done
+
+# resolve command
+CMD="$1"
+
+if [ -z "$CMD" ] || [ -z "${CMD_MAP[$CMD]}" ]; then
+  error "Unknown or missing command: ${CMD:-<none>}"
+  exit 1
+fi
+
+shift
+
+# debug AFTER shift (important)
+debug "command: $CMD"
+debug "args: $@"
+
+FUNC="${CMD_MAP[$CMD]}"
+
+if ! declare -f "$FUNC" >/dev/null; then
+  error "Unknown command: $CMD"
+  exit 1
+fi
+
+"$FUNC" "$@"
