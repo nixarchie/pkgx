@@ -1,35 +1,75 @@
 #!/usr/bin/env bash
+
+# Pkgx - User-friendly installation script
+# This script is a wrapper for 'make install'
+
 set -euo pipefail
 
-PREFIX="${HOME}/.local"
+# --- Configuration ---
+PREFIX="${PREFIX:-${HOME}/.local}"
 BIN_DIR="${PREFIX}/bin"
-LIB_DIR="${PREFIX}/lib/pkgx"
-PKGX_NAME="pkgx"
 
-echo "[*] Installing pkgx..."
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Create necessary directories
-mkdir -p "$BIN_DIR"
-mkdir -p "$LIB_DIR"
+info() { echo -e "${BLUE}[*]${NC} $*"; }
+success() { echo -e "${GREEN}[+]${NC} $*"; }
+error() { echo -e "${RED}[!]${NC} $*" >&2; exit 1; }
 
-# Copy all files to lib dir
-cp -r ./* "$LIB_DIR/"
+# --- Checks ---
+info "Checking environment..."
 
-# Make main executable executable
-chmod +x "$LIB_DIR/$PKGX_NAME"
+# Check for required tools
+for tool in bash grep make install; do
+    command -v "$tool" >/dev/null 2>&1 || error "Required tool '$tool' not found."
+done
 
-# Create symlink in bin
-ln -sf "$LIB_DIR/$PKGX_NAME" "$BIN_DIR/$PKGX_NAME"
+# --- Installation ---
 
-echo "[+] Installed $PKGX_NAME to $LIB_DIR and linked to $BIN_DIR"
-
-# Check PATH
-if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
-  echo "[!] Warning: $BIN_DIR is not in your PATH"
-  echo "    Add this to your shell config (~/.bashrc, ~/.zshrc, etc):"
-  echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
+# Check if we are in the source directory (looking for Makefile and pkgx)
+if [[ -f "Makefile" && -f "pkgx" ]]; then
+    info "Installing Pkgx from local source to $PREFIX..."
+    if make install PREFIX="$PREFIX"; then
+        success "Pkgx installation successful"
+    else
+        error "Installation failed."
+    fi
 else
-  echo "[+] $BIN_DIR is already in PATH"
+    info "Installing Pkgx from remote source to $PREFIX..."
+    
+    # Check for git
+    command -v git >/dev/null 2>&1 || error "Git is required for remote installation."
+
+    # Create a temporary directory
+    TMP_DIR=$(mktemp -d)
+    trap 'rm -rf "$TMP_DIR"' EXIT
+
+    info "Cloning repository to $TMP_DIR..."
+    git clone --depth 1 https://github.com/nixarchie/pkgx.git "$TMP_DIR" >/dev/null 2>&1 || error "Failed to clone repository."
+
+    # Run make install from the temp dir
+    if make -C "$TMP_DIR" install PREFIX="$PREFIX"; then
+        success "Pkgx installation successful"
+    else
+        error "Installation failed."
+    fi
 fi
 
-echo "[✓] Done. Run '$PKGX_NAME --help' to verify installation."
+# --- Post-Install ---
+
+# Check if BIN_DIR is in PATH
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    echo ""
+    echo -e "${RED}Warning:${NC} $BIN_DIR is not in your PATH"
+    echo "To be able to run 'pkgx' from anywhere, add this to your shell config (.bashrc, .zshrc, etc.):"
+    echo ""
+    echo "    export PATH=\"$BIN_DIR:\$PATH\""
+    echo ""
+else
+    success "$BIN_DIR is already in your PATH"
+fi
+
+success "Done. Run 'pkgx --help' to get started."

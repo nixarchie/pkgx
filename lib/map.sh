@@ -1,5 +1,25 @@
 declare -A CMD_MAP
 
+nix_profile_dispatch() {
+  local sub="$1"
+  shift
+  case "$sub" in
+    install) install "$@" ;;
+    remove|rm) remove "$@" ;;
+    upgrade) upgrade "$@" ;;
+    *) error "Unknown nix profile subcommand: $sub"; exit 1 ;;
+  esac
+}
+
+nix_registry_dispatch() {
+  local sub="$1"
+  shift
+  case "$sub" in
+    pin|update) sync "$@" ;;
+    *) error "Unknown nix registry subcommand: $sub"; exit 1 ;;
+  esac
+}
+
 load_interface() {
   case "$PKGX_INTERFACE" in
     pacman)
@@ -17,6 +37,14 @@ load_interface() {
         [remove]=remove
         [search]=search
         [update]=sync
+        [upgrade]=upgrade
+      )
+      ;;
+    nix)
+      CMD_MAP=(
+        [profile]=nix_profile_dispatch
+        [search]=search
+        [registry]=nix_registry_dispatch
         [upgrade]=upgrade
       )
       ;;

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-# Detect PKGX_ROOT (works for system or user install)
-if [ -d "$HOME/.local/lib/pkgx" ]; then
+# Detect PKGX_ROOT (works for system, user, or dev install)
+if [ -d "$PKGX_ROOT" ]; then
+    : # already set
+elif [ -d "$HOME/.local/lib/pkgx" ]; then
     PKGX_ROOT="$HOME/.local/lib/pkgx"
 elif [ -d "/usr/local/lib/pkgx" ]; then
     PKGX_ROOT="/usr/local/lib/pkgx"
