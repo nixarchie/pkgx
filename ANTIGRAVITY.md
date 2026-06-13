@@ -1,4 +1,4 @@
-# GEMINI.md - Project Context for Pkgx
+# ANTIGRAVITY.md - Project Context for Pkgx
 
 ## Project Overview
 **Pkgx** is a multi-distribution package manager frontend written in Bash. It provides a unified and consistent interface for package management across various Linux distributions, currently supporting **Arch Linux (pacman)**, **Debian/Ubuntu (apt)**, and **Nix**.
@@ -13,12 +13,13 @@ The project aims to simplify cross-distro package management by allowing users t
 - **Entry Point (`pkgx`):** A wrapper script that detects the installation root, loads libraries, and dispatches commands to their respective implementations.
 - **Libraries (`lib/`):**
     - `config.sh`: Handles configuration loading from environment variables and files.
+    - `eg-config.sh`: Example configuration template.
     - `flags.sh`: Parses command-line flags (e.g., `--dry-run`, `--yes`).
     - `backend.sh`: Detects the system's package manager and loads the corresponding backend implementation.
     - `map.sh`: Maps user commands to internal functions based on the configured interface.
     - `util.sh`: Provides logging utilities (`debug`, `info`, `warn`, `error`) and command execution wrappers.
 - **Backends (`lib/backend/`):** Contains distribution-specific logic for `apt`, `pacman`, and `nix` (modern flake-based implementation).
-- **Commands (`commands/`):** Modularized frontend commands (e.g., `install.sh`, `remove.sh`, `search.sh`) that call backend-agnostic functions.
+- **Commands (`commands/`):** Modularized frontend commands (`install.sh`, `remove.sh`, `search.sh`, `sync.sh`, `upgrade.sh`) that call backend-agnostic functions.
 
 ---
 
