@@ -1,3 +1,0 @@
-sync() {
-  backend_sync
-}

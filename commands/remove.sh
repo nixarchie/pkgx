@@ -1,3 +1,0 @@
-remove() {
-  backend_remove "$@"
-}

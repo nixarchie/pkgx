@@ -1,3 +1,0 @@
-search() {
-  backend_search "$@"
-}
