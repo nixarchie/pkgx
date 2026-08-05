@@ -7,3 +7,8 @@ src/
 # ---- makepkg git sources ----
 *-src/
 .vscode/
+
+# ---- local files ----
+README.md
+PKGBUILD
+pkgx.sh
